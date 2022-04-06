@@ -13,7 +13,7 @@ docker-build-filesbrowser:
   image: docker:latest
   stage: build
   services:
-    - devforth/drone-builder
+    - docker:dind
   before_script:
     - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASSWORD" $REGISTRY
   script:
