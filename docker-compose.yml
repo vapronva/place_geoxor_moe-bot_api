@@ -5,7 +5,7 @@ services:
     image: registry.vapronva.pw/websites/fs_geoxoplace_vapronva_pw-website:latest
     container_name: "web-geoxorplacevapronvapw"
     ports:
-      - 6033:8000
+      - 6033:80
     networks:
       - "w-geoxorplacevapronvapw-network"
 
