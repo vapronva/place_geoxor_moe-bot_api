@@ -11,8 +11,6 @@ include:
 
 docker-build-filesbrowser:
   stage: build
-  services:
-    - docker:dind
   before_script:
     - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASSWORD" $REGISTRY
   script:
