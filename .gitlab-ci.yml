@@ -1,0 +1,38 @@
+stages:
+  - build
+  - test
+  - deploy
+
+sast:
+  stage: test
+include:
+- template: Security/SAST.gitlab-ci.yml
+- template: Security/SAST-IaC.latest.gitlab-ci.yml
+
+docker-build-filesbrowser:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASSWORD" $REGISTRY
+  script:
+    - cd filesBrowser
+    - docker build --pull -t "$REGISTRY/websites/fs_geoxoplace_vapronva_pw-website" .
+    - docker push "$REGISTRY/websites/fs_geoxoplace_vapronva_pw-website"
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - filesBrowser/Dockerfile
+
+deploy-job:
+  stage: deploy
+  before_script:
+    - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASSWORD" $REGISTRY
+  script:
+    - docker-compose -f 'docker-compose.yml' --project-name 'wabs-geoxorplacevapronvapw' down
+    - docker-compose -f 'docker-compose.yml' --project-name 'wabs-geoxorplacevapronvapw' up -d
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - docker-compose.yml
