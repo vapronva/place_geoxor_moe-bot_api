@@ -20,7 +20,7 @@ docker-build:
     - docker build --pull -t "$REGISTRY/websites/fs_geoxoplace_vapronva_pw-website" .
     - docker push "$REGISTRY/websites/fs_geoxoplace_vapronva_pw-website"
     - cd ..
-    - cd filesBrowser
+    - cd canvasDownloader
     - docker build --pull -t "$REGISTRY/agents/place_geoxor_moe_canvas_downloader-api_agent" .
     - docker push "$REGISTRY/agents/place_geoxor_moe_canvas_downloader-api_agent"
   rules:
