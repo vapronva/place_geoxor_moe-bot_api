@@ -1,6 +1,6 @@
 stages:
-  - build
   - test
+  - build
   - deploy
 
 sast:
@@ -13,7 +13,7 @@ docker-build-filesbrowser:
   image: docker:latest
   stage: build
   services:
-    - docker:dind
+    - devforth/drone-builder
   before_script:
     - docker login -u "$REGISTRY_USER" -p "$REGISTRY_PASSWORD" $REGISTRY
   script:
