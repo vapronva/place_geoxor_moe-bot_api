@@ -1,0 +1,21 @@
+depends_on:
+  - "test"
+
+pipeline:
+  build-image-filesbrowser:
+    secrets:
+      - "DOCKER_PASSWORD"
+      - "DOCKER_USERNAME"
+    image: plugins/docker
+    settings:
+      registry: registry.vapronva.pw
+      repo: registry.vapronva.pw/websites/fs_geoxoplace_vapronva_pw-website
+      username: ${DOCKER_USERNAME}
+      password: ${DOCKER_PASSWORD}
+      dockerfile: ./Dockerfile
+      tags:
+        - "latest"
+    when:
+      event: [push]
+      path:
+        - "filesBrowser/**"

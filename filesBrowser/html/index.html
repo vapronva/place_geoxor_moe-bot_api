@@ -1,0 +1,472 @@
+<!-- S3 Bucket Explorer Version: 1.8.1 [62084623c287ece0dbca059652c4ae18ed180d6a] -->
+<!-- original code by qoomon [https://github.com/qoomon/aws-s3-bucket-browser] -->
+<!-- edited by vapronva -->
+
+<!DOCTYPE html>
+<html lang="en" style="overflow-y: auto;">
+
+<head>
+    <script>
+        const config = {
+            title: 'open file storage for geoxorplace.vapronva.pw',
+            subtitle: 'canvas images, videos, and more',
+            logo: 'https://cdn.wesa.vapronva.pw/favicons/geoxorplacevapronvapw/favicon-tr@2x.png',
+            favicon: 'https://cdn.wesa.vapronva.pw/favicons/geoxorplacevapronvapw/favicon@1x.jpg',
+            primaryColor: '#0e78f0',
+            bucketUrl: "https://pub.fs.geoxorplace.vapronva.pw",
+            rootPrefix: undefined,
+            keyExcludePatterns: [/\.DS_Store$/, /\/\._.*/],
+            pageSize: 100,
+            bucketMaskUrl: undefined,
+            defaultOrder: 'name-desc'
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link id="favicon" rel="shortcut icon" />
+    <script src="https://cdn.wesa.vapronva.pw/libraries/vue.js/2.6.14/vue.min.js"></script>
+    <script>
+        Vue.config.productionTip = false;
+    </script>
+    <style>
+        [v-cloak] {
+            display: none
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.wesa.vapronva.pw/icons/fontawesome-five/5.0.1/fontawesome.css">
+    <link rel="stylesheet"
+        href="https://cdn.wesa.vapronva.pw/icons/materialdesignicons/5.3.45.1/materialdesignicons.min.css" />
+    <script src="https://cdn.wesa.vapronva.pw/libraries/buefy/0.9.10/buefy.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.wesa.vapronva.pw/libraries/buefy/0.9.10/buefy.min.css">
+    <script src="https://cdn.wesa.vapronva.pw/libraries/moment/2.29.1/moment.min.js"></script>
+</head>
+
+<body>
+    <div id="app" v-cloak :style="cssVars">
+        <div class="level">
+            <div class="level-left" style="display: flex;">
+                <figure class="level-item image is-96x96" style="margin-right: 1.5rem;">
+                    <img :src="config.logo" />
+                </figure>
+                <div>
+                    <h1 class="title">{{config.title}}</h1>
+                    <h2 class="subtitle">{{config.subtitle}}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="container is-clearfix">
+                <div class="buttons is-pulled-left">
+                    <b-button v-for="(breadcrump, index) in pathBreadcrumps" v-bind:key="breadcrump.url"
+                        type="is-primary" rounded tag="a" :href="breadcrump.url" icon-pack="fas"
+                        :icon-left="index == 0 ? 'folder' : ''" target=""
+                        :style="{ fontWeight: index == 0 ? 'bolder': ''}" style="white-space: pre;">
+                        <template>{{index > 0 ? breadcrump.name : '/'}}</template>
+                    </b-button>
+                </div>
+                <div v-show="nextContinuationToken || previousContinuationTokens.length > 0"
+                    class="buttons is-pulled-right">
+                    <b-button type="is-primary" rounded icon-pack="fas" icon-left="angle-left" @click="previousPage"
+                        :disabled="previousContinuationTokens.length === 0">
+                    </b-button>
+                    <b-button type="is-primary" rounded icon-pack="fas" icon-right="angle-right" @click="nextPage"
+                        :disabled="!nextContinuationToken">
+                    </b-button>
+                </div>
+            </div>
+            <b-table :data="pathContentTableData" :default-sort="config.defaultOrder.split('-')[0]"
+                :default-sort-direction="config.defaultOrder.split('-')[1]" :mobile-cards="true">
+                <b-table-column v-slot="props" field="name" label="Name" sortable :custom-sort="sortTableData('name')"
+                    cell-class="name-column">
+                    <div style="display: flex; align-items: center;">
+                        <b-icon pack="far" :icon="props.row.type === 'prefix' ? 'folder' : 'file-alt'"
+                            class="name-column-icon">
+                        </b-icon>
+                        <div style="text-align: left;">
+                            <b-button type="is-text" rounded tag="a"
+                                :href="props.row.type === 'content' ? props.row.url : `#${props.row.prefix}`"
+                                @click="document.activeElement.blur()" style="text-align: left; white-space: pre-wrap;">
+                                <template>{{ props.row.name }}</template>
+                            </b-button>
+                            <br>
+                            <b-button v-if="props.row.installUrl" type="is-primary" rounded outlined tag="a"
+                                :href="props.row.installUrl" class="name-column-install-button">
+                                Install
+                            </b-button>
+                        </div>
+                    </div>
+                    <div v-if="cardView && (props.row.size || props.row.dateModified)" class="name-column-details">
+                        <div>{{ formatBytes(props.row.size) }}</div>
+                        <b-tooltip :active="!!props.row.dateModified" type="is-light" size="is-small" position="is-left"
+                            animated multilined>
+                            <div>{{ formatDateTime_relative(props.row.dateModified) }}</div>
+                            <template v-slot:content>
+                                <span>{{ formatDateTime_date(props.row.dateModified) }}</span>
+                                <br>
+                                <span>{{ formatDateTime_time(props.row.dateModified) }}</span>
+                            </template>
+                        </b-tooltip>
+                    </div>
+                </b-table-column>
+                <b-table-column v-slot="props" field="size" numeric label="Size" sortable
+                    :custom-sort="sortTableData('size')" centered width="128" cell-class="size-column">
+                    {{ formatBytes(props.row.size) }}
+                </b-table-column>
+                <b-table-column v-slot="props" field="dateModified" label="Date Modified" sortable
+                    :custom-sort="sortTableData('dateModified')" centered width="256" cell-class="modified-column">
+                    <b-tooltip :active="!!props.row.dateModified" type="is-light" size="is-small" position="is-left"
+                        animated multilined>
+                        <div>{{ formatDateTime_relative(props.row.dateModified) }}</div>
+                        <template v-slot:content>
+                            <span>{{ formatDateTime_date(props.row.dateModified) }}</span>
+                            <br>
+                            <span>{{ formatDateTime_time(props.row.dateModified) }}</span>
+                        </template>
+                    </b-tooltip>
+                </b-table-column>
+            </b-table>
+            <div class="container is-clearfix" style="margin-top: 1rem;">
+                <div v-show="nextContinuationToken || previousContinuationTokens.length > 0"
+                    class="buttons is-pulled-right">
+                    <b-button type="is-primary" rounded icon-pack="fas" icon-left="angle-left" @click="previousPage"
+                        :disabled="previousContinuationTokens.length === 0">
+                    </b-button>
+                    <b-button type="is-primary" rounded icon-pack="fas" icon-right="angle-right" @click="nextPage"
+                        :disabled="!nextContinuationToken">
+                    </b-button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bucket-url">
+            <a :href="`${config.bucketUrl}?prefix=${config.rootPrefix}${pathPrefix}`">insert your pixel here.</a>
+        </div>
+    </div>
+
+    <script>
+        function escapeRegExp(text) {
+            return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        }
+
+        function escapeHTML(text) {
+            let div = document.createElement('div')
+            div.innerText = text
+            return div.innerHTML
+        }
+
+        function devicePlatform_iOS() {
+            return /iPad|iPhone|iPod/.test(navigator.platform) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+        }
+    </script>
+    <script>
+        if (!config.bucketUrl) {
+            config.bucketUrl = new URL(window.location).searchParams.get('bucket')
+        }
+        if (!config.bucketUrl) {
+            config.bucketUrl = window.location.href
+        }
+        let match
+        let type
+        console.log("Bucket REST API: " + config.bucketUrl)
+        config.rootPrefix = config.rootPrefix || ''
+        if (config.rootPrefix) {
+            if (!config.rootPrefix.endsWith('/')) {
+                config.rootPrefix += '/'
+            }
+            console.log("Bucket Root Prefix: " + config.rootPrefix)
+        }
+        document.title = config.title
+        document.getElementById('favicon').href = config.favicon
+        Vue.use(Buefy.default, {
+            defaultIconPack: 'fa'
+        })
+        new Vue({
+            el: '#app',
+            data: {
+                config,
+                pathPrefix: '',
+                pathContentTableData: [],
+                previousContinuationTokens: [],
+                continuationToken: undefined,
+                nextContinuationToken: undefined,
+                windowWidth: window.innerWidth
+            },
+            computed: {
+                cssVars() {
+                    return {
+                        '--primary-color': this.config.primaryColor
+                    }
+                },
+                pathBreadcrumps() {
+                    return `/${this.pathPrefix}`.match(/(?=[/])|[^/]+[/]?/g)
+                        .map((pathPrefixPart, index, pathPrefixParts) => ({
+                            name: decodeURI(pathPrefixPart),
+                            url: '#' + pathPrefixParts.slice(0, index).join('') + pathPrefixPart
+                        }))
+                },
+                cardView() {
+                    return this.windowWidth <= 768
+                }
+            },
+            watch: {
+                pathPrefix() {
+                    this.previousContinuationTokens = []
+                    this.continuationToken = undefined
+                    this.nextContinuationToken = undefined
+                    this.refresh()
+                }
+            },
+            methods: {
+                moment,
+                previousPage() {
+                    if (this.previousContinuationTokens.length > 0) {
+                        this.continuationToken = this.previousContinuationTokens.pop()
+                        this.refresh()
+                    }
+                },
+                nextPage() {
+                    if (this.nextContinuationToken) {
+                        this.previousContinuationTokens.push(this.continuationToken)
+                        this.continuationToken = this.nextContinuationToken
+                        this.refresh()
+                    }
+                },
+                async refresh() {
+                    let listBucketResult
+                    try {
+                        if (!config.bucketUrl) {
+                            throw Error("Bucket url is undefined!")
+                        }
+                        let bucketListApiUrl = `${config.bucketUrl}?list-type=2`
+                        bucketListApiUrl += `&delimiter=/`
+                        let bucketPrefix = `${config.rootPrefix}${this.pathPrefix}`
+                        bucketListApiUrl += `&prefix=${bucketPrefix}`
+                        if (config.pageSize) {
+                            bucketListApiUrl += `&max-keys=${config.pageSize}`
+                        }
+                        if (this.continuationToken) {
+                            bucketListApiUrl +=
+                                `&continuation-token=${encodeURIComponent(this.continuationToken)}`
+                        }
+                        let listBucketResultResponse = await fetch(bucketListApiUrl)
+                        let listBucketResultXml = await listBucketResultResponse.text()
+                        listBucketResult = new DOMParser().parseFromString(listBucketResultXml, "text/xml")
+                        if (!listBucketResult.querySelector('ListBucketResult')) {
+                            throw Error("List bucket response does not contain <ListBucketResult> tag!")
+                        }
+                    } catch (error) {
+                        this.$buefy.notification.open({
+                            message: escapeHTML(error.message),
+                            type: 'is-danger',
+                            duration: 60000,
+                            position: 'is-bottom'
+                        })
+                        throw error
+                    }
+                    let nextContinuationTokenTag = listBucketResult.querySelector("NextContinuationToken")
+                    this.nextContinuationToken = nextContinuationTokenTag && nextContinuationTokenTag
+                        .textContent
+                    let commonPrefixes = [...listBucketResult.querySelectorAll(
+                            "ListBucketResult > CommonPrefixes")]
+                        .map(tag => ({
+                            prefix: tag.querySelector('Prefix').textContent
+                                .replace(RegExp(`^${escapeRegExp(config.rootPrefix)}`), '')
+                        }))
+                        .filter(prefix => !config.keyExcludePatterns.find(pattern => pattern.test(prefix
+                            .prefix)))
+                        .map(prefix => ({
+                            type: 'prefix',
+                            name: prefix.prefix.split('/').slice(-2)[0] + '/',
+                            prefix: prefix.prefix
+                        }))
+                    let contents = [...listBucketResult.querySelectorAll("ListBucketResult > Contents")]
+                        .map(tag => ({
+                            key: tag.querySelector('Key').textContent,
+                            size: parseInt(tag.querySelector('Size').textContent),
+                            dateModified: new Date(tag.querySelector('LastModified').textContent)
+                        }))
+                        .filter(content => content.key !== decodeURI(this.pathPrefix))
+                        .filter(content => !config.keyExcludePatterns.find(pattern => pattern.test(content
+                            .key)))
+                        .map(content => {
+                            if (content.key.endsWith('/') && !content.size) {
+                                return {
+                                    type: 'prefix',
+                                    name: content.key.split('/')[0] + '/',
+                                    prefix: `${this.pathPrefix}${content.key}`
+                                }
+                            }
+                            let url =
+                                `${(config.bucketMaskUrl || config.bucketUrl).replace(/\/*$/,'')}/${content.key}`
+                            let installUrl = undefined
+                            if (url.endsWith('/manifest.plist') && devicePlatform_iOS()) {
+                                installUrl =
+                                    `itms-services://?action=download-manifest&url=${url.replace(/\/[^/]*$/,'')}/manifest.plist`
+                            }
+                            return {
+                                type: 'content',
+                                name: content.key.split('/').slice(-1)[0],
+                                size: content.size,
+                                dateModified: content.dateModified,
+                                key: content.key,
+                                url,
+                                installUrl
+                            }
+                        })
+                    this.pathContentTableData = [...commonPrefixes, ...contents]
+                },
+                sortTableData(columnName) {
+                    return (rowA, rowB, isAsc) => {
+                        if (rowA.type != rowB.type) {
+                            return rowA.type === 'prefix' ? -1 : 1
+                        }
+                        const valueA = rowA[columnName]
+                        const valueB = rowB[columnName]
+                        if (valueA != valueB) {
+                            if (valueA === undefined) {
+                                return isAsc ? -1 : 1
+                            }
+                            if (valueB === undefined) {
+                                return isAsc ? 1 : -1
+                            }
+                            return isAsc ?
+                                (valueA < valueB ? -1 : 1) :
+                                (valueA < valueB ? 1 : -1)
+                        }
+                        return 0
+                    }
+                },
+                formatBytes(size) {
+                    if (!size) {
+                        return '-'
+                    }
+                    const KB = 1024
+                    if (size < KB) {
+                        return size + '  B'
+                    }
+                    const MB = 1000000
+                    if (size < MB) {
+                        return (size / KB).toFixed(0) + ' KB'
+                    }
+                    const GB = 1000000000
+                    if (size < GB) {
+                        return (size / MB).toFixed(2) + ' MB'
+                    }
+                    return (size / GB).toFixed(2) + ' GB'
+                },
+                formatDateTime_date(date) {
+                    return date ? moment(date).format('ddd, DD. MMM YYYY') : '-'
+                },
+                formatDateTime_time(date) {
+                    return date ? moment(date).format('hh:mm:ss') : '-'
+                },
+                formatDateTime_relative(date) {
+                    return date ? moment(date).fromNow() : '-'
+                }
+            },
+            async mounted() {
+                window.onpopstate = () => this.pathPrefix = window.location.hash.replace(/^#\/?/, '')
+                window.onpopstate()
+                window.addEventListener('resize', () => {
+                    this.windowWidth = window.innerWidth
+                })
+
+                this.refresh()
+            },
+            async beforeDestroy() {
+                window.removeEventListener('resize')
+            }
+        })
+    </script>
+    <style scoped>
+        body {
+            width: 100vw;
+            min-height: 100vh;
+            position: relative;
+            padding: 1.25rem 2.5rem 2.5rem 1.5rem;
+            background-color: #f5f5f5;
+            overflow-y: auto;
+        }
+
+        .button.is-primary {
+            background-color: var(--primary-color) !important;
+        }
+
+        .button.is-primary.is-outlined {
+            background-color: transparent !important;
+            border-color: var(--primary-color) !important;
+            color: var(--primary-color) !important;
+        }
+
+        .button.is-text {
+            padding: 0 !important;
+            height: auto !important;
+            text-decoration: none !important;
+            box-shadow: none !important;
+            background-color: unset !important;
+            user-select: text !important;
+            color: var(--primary-color) !important;
+            font-weight: 500;
+        }
+
+        .button.is-text:focus {
+            font-weight: bold;
+        }
+
+        .name-column-icon {
+            display: block;
+            text-align: left;
+            flex-basis: 1.5rem;
+            flex-grow: 0;
+            flex-shrink: 0;
+            /* " */
+        }
+
+        .name-column-install-button {
+            height: 0;
+            padding: 0.6rem;
+            margin-top: 0.4rem;
+            font-size: 0.8rem;
+        }
+
+        .name-column-details {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            flex-shrink: 0;
+            min-width: 5rem;
+            font-size: 0.85rem;
+            line-height: 1.5rem;
+            flex-direction: column;
+        }
+
+        .footer-bucket-url {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin-bottom: 0.5rem;
+            font-size: small;
+            text-align: center;
+            color: darkgray;
+        }
+
+        .footer-bucket-url a {
+            color: inherit;
+        }
+
+        @media screen and (max-width: 768px) {
+            .name-column::before {
+                display: none !important;
+            }
+
+            .size-column,
+            .modified-column {
+                display: none !important;
+            }
+        }
+    </style>
+</body>
+
+</html>

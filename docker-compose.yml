@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  geoxorplacevapronvapwwebsite:
+    image: registry.vapronva.pw/websites/fs_geoxoplace_vapronva_pw-website:latest
+    container_name: "web-geoxorplacevapronvapw"
+    ports:
+      - 6033:8000
+    networks:
+      - "w-geoxorplacevapronvapw-network"
+
+networks:
+  w-geoxorplacevapronvapw-network:
+    external: true
