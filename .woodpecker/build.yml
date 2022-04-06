@@ -12,10 +12,11 @@ pipeline:
       repo: registry.vapronva.pw/websites/fs_geoxoplace_vapronva_pw-website
       username: ${DOCKER_USERNAME}
       password: ${DOCKER_PASSWORD}
-      dockerfile: ./Dockerfile
+      dockerfile: ./filesBrowser/Dockerfile
       tags:
         - "latest"
     when:
       event: [push]
       path:
         - "filesBrowser/**"
+        - "**/*.yml"
