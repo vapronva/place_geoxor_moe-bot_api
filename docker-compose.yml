@@ -8,6 +8,28 @@ services:
       - 6033:80
     networks:
       - "w-geoxorplacevapronvapw-network"
+  imagesdownloadergeoxorplace:
+    image: registry.vapronva.pw/agents/place_geoxor_moe_canvas_downloader-api_agent:latest
+    container_name: "api_agent-place_geoxor_moe_downloader"
+    networks:
+      - "w-geoxorplacevapronvapw-network"
+    volumes:
+      - canvasimages-15s:/usr/src/app/board-images-15s
+      - canvasimages-60s:/usr/src/app/board-images-60s
+
+volumes:
+  canvasimages-60s:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: nfsvers=4,addr=192.168.75.10,rw,noatime,nolock,soft,rsize=8192,wsize=8192,tcp,timeo=14
+      device: "192.168.75.10:/mnt/seagate-4tb-ex7-ws221yth/minio-object_storage/pub.fs.geoxorplace.vapronva.pw/canvas-images/1-minute-interval"
+  canvasimages-15s:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: nfsvers=4,addr=192.168.75.10,rw,noatime,nolock,soft,rsize=8192,wsize=8192,tcp,timeo=14
+      device: "192.168.75.10:/mnt/seagate-4tb-ex7-ws221yth/minio-object_storage/pub.fs.geoxorplace.vapronva.pw/canvas-images/15-seconds-interval"
 
 networks:
   w-geoxorplacevapronvapw-network:
