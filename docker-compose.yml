@@ -19,6 +19,8 @@ services:
   pixelsparser:
     image: registry.vapronva.pw/agents/place_geoxor_moe_pixels_parser-api_agent:latest
     container_name: "api_agent-place_geoxor_moe_pixels_parser"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
     networks:
       - "w-geoxorplacevapronvapw-network"
   api:
