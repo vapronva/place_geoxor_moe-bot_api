@@ -16,6 +16,11 @@ services:
     volumes:
       - canvasimages-15s:/usr/src/app/board-images-15s
       - canvasimages-60s:/usr/src/app/board-images-60s
+  pixelsparser:
+    image: registry.vapronva.pw/agents/place_geoxor_moe_pixels_parser-api_agent:latest
+    container_name: "api_agent-place_geoxor_moe_pixels_parser"
+    networks:
+      - "w-geoxorplacevapronvapw-network"
   api:
     image: registry.vapronva.pw/api/place_geoxor_moe_altcan-api:latest
     container_name: "api_web-place_geoxor_moe_alternative"

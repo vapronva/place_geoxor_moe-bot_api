@@ -18,7 +18,7 @@ def main_root():
     tl_url_1 = response["result"]["timelapse"]["downloadURLs"]["h264"]
     tl_time_1 = dateparser.parse(response["result"]["timelapse"]["date"]).strftime("%Y/%m/%d %H:%M:%S")
     response = requests.get(
-        url="http://127.0.0.1:8000/timelapse/latest",
+        url="http://api:8000/timelapse/latest",
         params={
             "interval_time": "15",
         },

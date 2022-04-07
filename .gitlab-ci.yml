@@ -31,6 +31,10 @@ docker-build:
     - cd website
     - docker build --pull -t "$REGISTRY/websites/geoxor_place_vapronva_pw-website" .
     - docker push "$REGISTRY/websites/geoxor_place_vapronva_pw-website"
+    - cd ..
+    - cd parsePixels
+    - docker build --pull -t "$REGISTRYagents/place_geoxor_moe_pixels_parser-api_agent" .
+    - docker push "$REGISTRY/agents/place_geoxor_moe_pixels_parser-api_agent"
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
