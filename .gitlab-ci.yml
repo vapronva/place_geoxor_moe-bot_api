@@ -23,11 +23,16 @@ docker-build:
     - cd canvasDownloader
     - docker build --pull -t "$REGISTRY/agents/place_geoxor_moe_canvas_downloader-api_agent" .
     - docker push "$REGISTRY/agents/place_geoxor_moe_canvas_downloader-api_agent"
+    - cd ..
+    - cd api
+    - docker build --pull -t "$REGISTRY/api/place_geoxor_moe_altcan-api" .
+    - docker push "$REGISTRY/api/place_geoxor_moe_altcan-api"
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
         - filesBrowser/Dockerfile
         - canvasDownloader/Dockerfile
+        - api/Dockerfile
 
 deploy-job:
   stage: deploy

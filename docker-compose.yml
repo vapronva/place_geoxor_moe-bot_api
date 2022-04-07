@@ -16,6 +16,16 @@ services:
     volumes:
       - canvasimages-15s:/usr/src/app/board-images-15s
       - canvasimages-60s:/usr/src/app/board-images-60s
+  api:
+    image: registry.vapronva.pw/api/place_geoxor_moe_altcan-api:latest
+    container_name: "api_web-place_geoxor_moe_alternative"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MASTER_KEY=${MASTER_KEY}
+    networks:
+      - "w-geoxorplacevapronvapw-network"
+    ports:
+      - 6032:8000
 
 volumes:
   canvasimages-60s:
