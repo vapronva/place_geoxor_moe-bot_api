@@ -26,6 +26,13 @@ services:
       - "w-geoxorplacevapronvapw-network"
     ports:
       - 6032:8000
+  web:
+    image: registry.vapronva.pw/websites/geoxor_place_vapronva_pw-website:latest
+    container_name: "web-geoxor_place_vapronva_pw"
+    networks:
+      - "w-geoxorplacevapronvapw-network"
+    ports:
+      - 6031:8000
 
 volumes:
   canvasimages-60s:

@@ -27,12 +27,17 @@ docker-build:
     - cd api
     - docker build --pull -t "$REGISTRY/api/place_geoxor_moe_altcan-api" .
     - docker push "$REGISTRY/api/place_geoxor_moe_altcan-api"
+    - cd ..
+    - cd website
+    - docker build --pull -t "$REGISTRY/websites/geoxor_place_vapronva_pw-website" .
+    - docker push "$REGISTRY/websites/geoxor_place_vapronva_pw-website"
   rules:
     - if: $CI_COMMIT_BRANCH
       exists:
         - filesBrowser/Dockerfile
         - canvasDownloader/Dockerfile
         - api/Dockerfile
+        - website/Dockerfile
 
 deploy-job:
   stage: deploy

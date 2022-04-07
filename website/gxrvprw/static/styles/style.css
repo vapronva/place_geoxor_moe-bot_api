@@ -1,0 +1,373 @@
+body {
+	margin: 0;
+	padding: 0;
+	background: #222222;
+	overflow-x: hidden;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.page-container {
+	overflow: hidden;
+}
+
+a {
+	transition: background .3s ease-in-out;
+	outline: none !important;
+}
+
+a:hover {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+@font-face {
+	font-family: Inter-Black;
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-black.woff2);
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-black.woff2) format("woff2"), url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-black.woff) format("woff");
+	font-weight: 400;
+	font-style: normal
+}
+
+@font-face {
+	font-family: Inter-LightItalic;
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-light-italic.woff2);
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-light-italic.woff2) format('woff2'), url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-light-italic.woff) format('woff');
+	font-weight: 400;
+	font-style: normal
+}
+
+@font-face {
+	font-family: Inter-Medium;
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-medium.woff2);
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-medium.woff2) format('woff2'), url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-medium.woff) format('woff');
+	font-weight: 400;
+	font-style: normal
+}
+
+@font-face {
+	font-family: Inter;
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-roman.var.woff2);
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-roman.var.woff2) format("woff2");
+	font-weight: 400;
+	font-style: normal
+}
+
+@font-face {
+	font-family: Inter-Bold;
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-bold.woff2);
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-bold.woff2) format('woff2'), url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-bold.woff) format('woff');
+	font-weight: 400;
+	font-style: normal
+}
+
+@font-face {
+	font-family: Inter-ExtraBold;
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-extrabold.woff2);
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-extrabold.woff2) format("woff2"), url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-extrabold.woff) format("woff");
+	font-weight: 400;
+	font-style: normal
+}
+
+@font-face {
+	font-family: Inter-Thin;
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-thin.woff2);
+	src: url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-thin.woff2) format('woff2'), url(https://cdn.wesa.vapronva.pw/fonts/inter/3.19/files/i-thin.woff) format('woff');
+	font-weight: 400;
+	font-style: normal
+}
+
+.mainfs {
+	width: 100%;
+	clear: both;
+	background: 50% 50% no-repeat;
+	padding: 0 20px;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	position: relative;
+	display: flex;
+}
+
+.mainfs .container {
+	padding-left: 0;
+	padding-right: 0;
+	position: relative;
+}
+
+.filling-screen {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.filling-screen>.container {
+	align-self: flex-middle;
+	flex-grow: 1;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.filling-screen>.container>.row {
+	flex-grow: 1;
+	align-self: center;
+	width: 100%;
+}
+
+.background-texture::before {
+	content: "";
+	background-size: 2px 2px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+.texture-darken::before {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.parallax__container {
+	clip: rect(0, auto, auto, 0);
+	height: 100%;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: -1;
+}
+
+.parallax {
+	position: fixed;
+	top: 0;
+	-webkit-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+	-webkit-transform-style: preserve-3d;
+	transform-style: preserve-3d;
+	width: 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.dark-huch {
+	color: rgba(255, 255, 255, .7);
+}
+
+.dark-huch h1 a,
+.dark-huch h2 a,
+.dark-huch h3 a,
+.dark-huch h4 a,
+.dark-huch p a {
+	color: rgba(255, 255, 255, .6);
+}
+
+.dark-huch h1 a:hover,
+.dark-huch h2 a:hover,
+.dark-huch h3 a:hover,
+.dark-huch h4 a:hover,
+.dark-huch p a:hover {
+	color: rgba(255, 255, 255, 1);
+}
+
+.dark-huch .card {
+	color: rgba(0, 0, 0, .5);
+}
+
+.dark-huch .card icon {
+	border-color: rgba(0, 0, 0, .7);
+}
+
+.margin-zero {
+	margin: 0;
+}
+
+.margin-medium {
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
+.button-style-ayo,
+.button-style-ayo:hover,
+.button-style-ayo:focus {
+	color: #FFF;
+	background: rgba(0, 0, 0, .3);
+}
+
+.get-ratiod-to-square-lmaooo::before {
+	padding-top: 100%
+}
+
+.hide-deez-nuts {
+	display: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+.btn,
+a {
+	font-family: "Inter";
+	color: #FFFFFF !important;
+}
+
+.container {
+	max-width: 1140px;
+}
+
+.h1-intro-titile-style {
+	font-family: "Inter-Black";
+	font-size: 40px;
+	line-height: 40px;
+}
+
+.text-cool-shadow {
+	text-shadow: 0px 2px 14px rgba(0, 0, 0, 0.60);
+}
+
+.par-intro-subtitle-style {
+	font-family: "Inter-LightItalic";
+}
+
+.h4-intro-subtitle-style {
+	line-height: 25px;
+	font-family: "Inter-Medium";
+}
+
+.h2-section-title-style {
+	font-family: "Inter-ExtraBold";
+}
+
+.h3-subsection-title-style {
+	font-family: "Inter-Bold";
+}
+
+.par-subsection-description-style {
+	font-family: "Inter-Thin";
+	font-size: 14px;
+	line-height: 16px;
+}
+
+.box-shadow-ayoo {
+	box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.50);
+}
+
+.button-margin-tci {
+	margin-top: 8px;
+}
+
+.bg-mockup-walking-with-iphone-x-mockup-gplace {
+	background-image: url("https://cdn.images.vapronva.pw/_websites/geoxorplacevapronvapw/mockup-walking-with-iphone-x-mockup-gplace.jpeg");
+}
+
+.bg-mockup-clean-desk-with-dell-display-mockup-gplace {
+	background-image: url("https://cdn.images.vapronva.pw/_websites/geoxorplacevapronvapw/mockup-clean-desk-with-dell-display-mockup-gplace.jpeg");
+}
+
+.bg-mockup-holding-samsung-s20-mockup-in-front-of-a-bike-gplace {
+	background-image: url("https://cdn.images.vapronva.pw/_websites/geoxorplacevapronvapw/mockup-holding-samsung-s20-mockup-in-front-of-a-bike-gplace.jpeg");
+}
+
+
+@media (max-width: 991px) {
+	.container {
+		width: 100%;
+	}
+
+	.mainfs {
+		padding-left: constant(safe-area-inset-left);
+		padding-right: constant(safe-area-inset-right);
+	}
+}
+
+@media (max-width: 991px) {
+
+	h1,
+	h2,
+	h3,
+	h4,
+	p,
+	.btn,
+	a {
+		color: #FFFFFF !important;
+	}
+
+	.h1-intro-titile-style {
+		line-height: 38px;
+	}
+
+	.par-subsection-description-style {
+		font-size: 12px;
+		line-height: 14px;
+	}
+
+	.h3-subsection-title-style {
+		line-height: 26px;
+	}
+}
+
+@media (max-width: 767px) {
+
+	h1,
+	h2,
+	h3,
+	h4,
+	p,
+	.btn,
+	a {
+		color: #FFFFFF !important;
+	}
+
+	.h4-intro-subtitle-style {
+		line-height: 23px;
+	}
+
+	.h1-intro-titile-style {
+		line-height: 36px;
+	}
+
+	.par-subsection-description-style {
+		line-height: 12px;
+	}
+
+	.h3-subsection-title-style {
+		line-height: 26px;
+	}
+}
+
+@media (max-width: 575px) {
+
+	h1,
+	h2,
+	h3,
+	h4,
+	p,
+	.btn,
+	a {
+		color: #FFFFFF !important;
+	}
+
+	.h4-intro-subtitle-style {
+		line-height: 20px;
+	}
+
+	.par-subsection-description-style {
+		font-size: 10px;
+		line-height: 10px;
+	}
+
+	.h3-subsection-title-style {
+		line-height: 20px;
+	}
+
+	.margin-cause-css {
+		margin-top: 18px;
+	}
+}
