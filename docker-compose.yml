@@ -3,6 +3,7 @@ version: "3"
 services:
   geoxorplacevapronvapwwebsite:
     image: registry.vapronva.pw/websites/fs_geoxoplace_vapronva_pw-website:latest
+    restart: unless-stopped
     container_name: "web-geoxorplacevapronvapw"
     ports:
       - 6033:80
@@ -10,6 +11,7 @@ services:
       - "w-geoxorplacevapronvapw-network"
   imagesdownloadergeoxorplace:
     image: registry.vapronva.pw/agents/place_geoxor_moe_canvas_downloader-api_agent:latest
+    restart: always
     container_name: "api_agent-place_geoxor_moe_downloader"
     networks:
       - "w-geoxorplacevapronvapw-network"
@@ -18,6 +20,7 @@ services:
       - canvasimages-60s:/usr/src/app/board-images-60s
   pixelsparser:
     image: registry.vapronva.pw/agents/place_geoxor_moe_pixels_parser-api_agent:latest
+    restart: always
     container_name: "api_agent-place_geoxor_moe_pixels_parser"
     environment:
       - MONGODB_URI=${MONGODB_URI}
@@ -25,6 +28,7 @@ services:
       - "w-geoxorplacevapronvapw-network"
   api:
     image: registry.vapronva.pw/api/place_geoxor_moe_altcan-api:latest
+    restart: unless-stopped
     container_name: "api_web-place_geoxor_moe_alternative"
     environment:
       - MONGODB_URI=${MONGODB_URI}
@@ -35,6 +39,7 @@ services:
       - 6032:8000
   web:
     image: registry.vapronva.pw/websites/geoxor_place_vapronva_pw-website:latest
+    restart: unless-stopped
     container_name: "web-geoxor_place_vapronva_pw"
     networks:
       - "w-geoxorplacevapronvapw-network"

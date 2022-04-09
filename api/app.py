@@ -159,7 +159,7 @@ class VideoDownloadFormatsModel(pydantic.BaseModel):
     """
     h264: str
     h265: str
-    prores: str
+    prores: Optional[str] = None
 
 class ArchiveImagesDownloadModel(pydantic.BaseModel):
     """
