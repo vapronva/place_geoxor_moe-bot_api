@@ -56,6 +56,9 @@ class ActionTypes(Enum):
     GET_TIMELAPSE_ALL = "GET_TIMELAPSE_ALL"
     GET_LATEST_TIMELAPSE = "GET_LATEST_TIMELAPSE"
     GET_REDIRECT_LATEST_TIMELAPSE = "GET_REDIRECT_LATEST_TIMELAPSE"
+    GET_ALL_USERS = "GET_ALL_USERS"
+    GET_ALL_PIXELS_BY_USERNAME = "GET_ALL_PIXELS_BY_USERNAME"
+    GET_ALL_PIXELS_BY_USERID = "GET_ALL_PIXELS_BY_USERID"
 
 class ErrorBaseModel(pydantic.BaseModel):
     """
@@ -209,9 +212,45 @@ def get_db_all_timelapses() -> List[CanvasTimelapseObjectModel]:
     timelapses = __DB_TLS.find({})
     return [CanvasTimelapseObjectModel(**timelapse) for timelapse in timelapses]
 
+def get_db_all_timelapses_by_itervaltime(interval_time: int) -> List[CanvasTimelapseObjectModel]:
+    """
+    Function to get all timelapses from the database by interval time.
+    """
+    timelapses = __DB_TLS.find({"interval_time": interval_time})
+    return [CanvasTimelapseObjectModel(**timelapse) for timelapse in timelapses]
+
 def get_db_latest_timelapse(interval_time: int) -> CanvasTimelapseObjectModel:
+    """
+    Function to get the latest timelapse from the database by interval time.
+    """
     timelapse = __DB_TLS.find({"interval_time": interval_time}).sort("date", -1).limit(1)[0]
     return CanvasTimelapseObjectModel(**timelapse)
+
+
+def get_db_all_users_by_latest_pixel() -> List[PixelInfoUserModel]:
+    """
+    Function to get all users from the database, sorted by the latest pixel.
+    """
+    users = [user["user"] for user in __DB_PIXINFO.find({}).sort("modified", -1)]
+    usedUserIDs = set()
+    for user in users:
+        if user is not None and user["id"] not in usedUserIDs:
+            usedUserIDs.add(user["id"])
+            yield PixelInfoUserModel(**user)
+
+def get_db_all_pixels_by_username(username: str) -> List[PixelInformationModel]:
+    """
+    Function to get all pixels from the database, sorted by the latest pixel.
+    """
+    pixels = __DB_PIXINFO.find({"user.username": username})
+    return [PixelInformationModel(**pixel) for pixel in pixels]
+
+def get_db_all_pixels_by_userid(userid: str) -> List[PixelInformationModel]:
+    """
+    Function to get all pixels from the database, sorted by the latest pixel.
+    """
+    pixels = __DB_PIXINFO.find({"editorID": userid})
+    return [PixelInformationModel(**pixel) for pixel in pixels]
 
 
 def check_for_proper_authentication_header(request: Request) -> bool:
@@ -300,16 +339,36 @@ def get_pixel_historic_information(request: Request, x: int, y: int):
 
 
 @app.get("/timelapses/all", status_code=200, response_model=BaseResponseModel)
-def get_all_timelapses(request: Request):
+def get_all_timelapses(request: Request, interval_time: Optional[int] = None):
     """
     Endpoint for getting all timelapses.
     """
-    return BaseResponseModel(
-        action=ActionTypes.GET_TIMELAPSE_ALL,
-        result={"timelapses": get_db_all_timelapses()},
-        error=None)
+    match interval_time:
+        case None:
+            return BaseResponseModel(
+                action=ActionTypes.GET_TIMELAPSE_ALL,
+                result={"timelapses": get_db_all_timelapses()},
+                error=None)
+        case 15:
+            return BaseResponseModel(
+                action=ActionTypes.GET_TIMELAPSE_ALL,
+                result={"timelapses": get_db_all_timelapses_by_itervaltime(15)},
+                error=None)
+        case 60:
+            return BaseResponseModel(
+                action=ActionTypes.GET_TIMELAPSE_ALL,
+                result={"timelapses": get_db_all_timelapses_by_itervaltime(60)},
+                error=None)
+    raise ErrorCustomBruhher(
+        BaseResponseModel(
+            action=ActionTypes.GET_TIMELAPSE_ALL,
+            result=None,
+            error=ErrorBaseModel(
+                name=ErrorTypes.UNACCEPTABLE_INTERVAL_TIME,
+                description="The provided interval time is not acceptable. Only 60 and 15 are accepted.",
+            )), 400)
 
-@app.get("/timelapse/latest", status_code=200, response_model=BaseResponseModel)
+@app.get("/timelapses/latest", status_code=200, response_model=BaseResponseModel)
 def get_latest_timelapses(request: Request, interval_time: int = 60, redirectToH264: bool = False):
     """
     Endpoint for getting latest timelapse.
@@ -329,4 +388,34 @@ def get_latest_timelapses(request: Request, interval_time: int = 60, redirectToH
     return BaseResponseModel(
         action=ActionTypes.GET_LATEST_TIMELAPSE,
         result={"timelapse": get_db_latest_timelapse(interval_time)},
+        error=None)
+
+@app.get("/users/all", status_code=200, response_model=BaseResponseModel)
+def get_all_users(request: Request):
+    """
+    Endpoint to get all users with their latest information.
+    """
+    return BaseResponseModel(
+        action=ActionTypes.GET_ALL_USERS,
+        result={"users": list(get_db_all_users_by_latest_pixel())},
+        error=None)
+
+@app.get("/users/name/{username}", status_code=200, response_model=BaseResponseModel)
+def get_all_pixels_by_username(request: Request, username: str):
+    """
+    Endpoint to get all pixels of a user by their username.
+    """
+    return BaseResponseModel(
+        action=ActionTypes.GET_ALL_PIXELS_BY_USERNAME,
+        result={"pixels": get_db_all_pixels_by_username(username)},
+        error=None)
+
+@app.get("/users/id/{userID}", status_code=200, response_model=BaseResponseModel)
+def get_all_pixels_by_userid(request: Request, userID: str):
+    """
+    Endpoint to get all pixels of a user by their userID.
+    """
+    return BaseResponseModel(
+        action=ActionTypes.GET_ALL_PIXELS_BY_USERID,
+        result={"pixels": get_db_all_pixels_by_userid(userID)},
         error=None)
